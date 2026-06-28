@@ -25,10 +25,15 @@ app.set('io', io);
 
 // Listen for WebSocket connections
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.id}`);
+  console.log(`User connected: ${socket.id}. Total active: ${io.sockets.sockets.size}`);
+  
+  // Broadcast active users on connection
+  io.emit('active_users', io.sockets.sockets.size);
   
   socket.on('disconnect', () => {
-    console.log(`User disconnected: ${socket.id}`);
+    console.log(`User disconnected: ${socket.id}. Total active: ${io.sockets.sockets.size}`);
+    // Broadcast active users on disconnection
+    io.emit('active_users', io.sockets.sockets.size);
   });
 });
 
