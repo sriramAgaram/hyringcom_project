@@ -1,7 +1,9 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from '../components/Layout';
 
 const BoardPage = lazy(() => import('../pages/BoardPage'));
+const HistoryPage = lazy(() => import('../pages/HistoryPage'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -14,8 +16,10 @@ const AppRouter = () => {
     <Router>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<BoardPage />} />
-          {/* Catch-all route can be added here later */}
+          <Route element={<Layout />}>
+            <Route path="/" element={<BoardPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+          </Route>
         </Routes>
       </Suspense>
     </Router>

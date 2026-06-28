@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { Trash2, Pencil } from 'lucide-react';
+import { Button } from 'primereact/button';
+import { InputText } from 'primereact/inputtext';
+import { confirmDialog } from 'primereact/confirmdialog';
 
 const TaskCard = ({ card, onDelete, onRename }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(card.title);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleDragStart = (e) => {
     if (isEditing) {
@@ -20,49 +23,75 @@ const TaskCard = ({ card, onDelete, onRename }) => {
     setIsEditing(false);
   };
 
+  const confirmDelete = () => {
+    confirmDialog({
+      message: 'Are you sure you want to delete this task?',
+      header: 'Confirm Deletion',
+      icon: 'pi pi-exclamation-triangle',
+      acceptClassName: 'p-button-danger',
+      accept: () => onDelete(card.id)
+    });
+  };
+
   return (
     <div
       draggable={!isEditing}
       onDragStart={handleDragStart}
-      className={`bg-white p-3 rounded shadow-sm border border-gray-200 mb-3 group relative transition-shadow ${!isEditing ? 'cursor-grab active:cursor-grabbing hover:shadow-md' : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`mb-3 ${!isEditing ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
-      {isEditing ? (
-        <input
-          autoFocus
-          className="w-full text-sm text-gray-800 p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
-          value={editTitle}
-          onChange={(e) => setEditTitle(e.target.value)}
-          onBlur={handleRenameSubmit}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleRenameSubmit();
-            if (e.key === 'Escape') {
-              setEditTitle(card.title);
-              setIsEditing(false);
-            }
-          }}
-        />
-      ) : (
-        <p className="text-gray-800 text-sm font-medium pr-12 break-words">{card.title}</p>
-      )}
-      
-      {!isEditing && (
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 bg-white pl-1 rounded">
-          <button
-            onClick={() => setIsEditing(true)}
-            className="text-gray-400 hover:text-blue-500"
-            title="Rename Card"
-          >
-            <Pencil size={15} />
-          </button>
-          <button
-            onClick={() => onDelete(card.id)}
-            className="text-gray-400 hover:text-red-500"
-            title="Delete Card"
-          >
-            <Trash2 size={15} />
-          </button>
+      <div className={`bg-white rounded p-2 shadow-sm border transition-all duration-200 ${isHovered && !isEditing ? 'shadow-md border-blue-300' : 'border-gray-200'}`}>
+        <div className="flex justify-between items-center relative min-h-[24px]">
+          
+          {isEditing ? (
+            <div className="w-full flex">
+              <InputText
+                autoFocus
+                className="w-full text-sm p-1"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                onBlur={handleRenameSubmit}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleRenameSubmit();
+                  if (e.key === 'Escape') {
+                    setEditTitle(card.title);
+                    setIsEditing(false);
+                  }
+                }}
+              />
+            </div>
+          ) : (
+            <div className="text-gray-800 text-sm font-medium pr-10 w-full break-words leading-tight">
+              {card.title}
+            </div>
+          )}
+
+          {!isEditing && isHovered && (
+            <div className="absolute top-1/2 -translate-y-1/2 right-0 flex gap-1 pl-2 items-center">
+              <Button 
+                icon="pi pi-pencil" 
+                rounded text severity="info" 
+                aria-label="Edit" 
+                onClick={() => setIsEditing(true)}
+                className="w-1.5rem h-1.5rem p-0"
+                tooltip="Rename"
+                tooltipOptions={{ position: 'top' }}
+              />
+              <Button 
+                icon="pi pi-trash" 
+                rounded text severity="danger" 
+                aria-label="Delete" 
+                onClick={confirmDelete}
+                className="w-1.5rem h-1.5rem p-0"
+                tooltip="Delete"
+                tooltipOptions={{ position: 'top' }}
+              />
+            </div>
+          )}
+          
         </div>
-      )}
+      </div>
     </div>
   );
 };
