@@ -1,6 +1,8 @@
 const pool = require('../config/supabase');
 const cardModel = require('../models/cardModel');
 const cardQueries = require('../queries/cardQueries');
+const historyModel = require('../models/historyModel');
+const historyQueries = require('../queries/historyQueries');
 
 const getCards = async (req, res) => {
   try {
@@ -31,6 +33,17 @@ const createCard = async (req, res) => {
 const updateCard = async (req, res) => {
   try {
     const id = req.params.id;
+    
+    // 1. If status is being updated, we need to know the old status to record history
+    let oldCard = null;
+    if (req.body.status) {
+      const oldCardResult = await pool.query('SELECT status, title FROM cards WHERE id = $1', [id]);
+      if (oldCardResult.rows.length > 0) {
+        oldCard = oldCardResult.rows[0];
+      }
+    }
+
+    // 2. Prepare and execute the update query
     const { keys, values } = cardModel.prepareUpdateData(id, req.body);
     
     if (keys.length === 0) {
@@ -45,6 +58,17 @@ const updateCard = async (req, res) => {
     }
     
     const updatedCard = result.rows[0];
+    
+    // 3. If the card was moved (status changed), record it in the history table
+    if (oldCard && oldCard.status !== updatedCard.status) {
+      const historyValues = historyModel.prepareHistoryData({
+        card_id: updatedCard.id,
+        card_title: updatedCard.title,
+        from_status: oldCard.status,
+        to_status: updatedCard.status
+      });
+      await pool.query(historyQueries.INSERT_HISTORY, historyValues);
+    }
     
     // Broadcast the updated card to all connected WebSocket clients
     req.app.get('io').emit('card_updated', updatedCard);

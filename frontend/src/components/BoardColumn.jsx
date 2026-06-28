@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import TaskCard from './TaskCard';
-import { Plus, X } from 'lucide-react';
+import { Button } from 'primereact/button';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Badge } from 'primereact/badge';
 
 const BoardColumn = ({ title, status, cards, onAddCard, onMoveCard, onDeleteCard, onRenameCard }) => {
   const [isAdding, setIsAdding] = useState(false);
@@ -15,7 +17,7 @@ const BoardColumn = ({ title, status, cards, onAddCard, onMoveCard, onDeleteCard
   };
 
   const handleDragOver = (e) => {
-    e.preventDefault(); // Required to allow dropping
+    e.preventDefault();
   };
 
   const handleAddSubmit = (e) => {
@@ -29,16 +31,16 @@ const BoardColumn = ({ title, status, cards, onAddCard, onMoveCard, onDeleteCard
 
   return (
     <div
-      className="bg-gray-100 flex flex-col rounded-lg max-h-full"
+      className="bg-gray-100 flex flex-col rounded-xl shadow-sm border border-gray-200 h-full max-h-full overflow-hidden"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
-      <div className="p-3 bg-gray-200 rounded-t-lg font-semibold text-gray-700 flex justify-between items-center shadow-sm">
-        <span>{title}</span>
-        <span className="text-xs bg-gray-300 text-gray-600 px-2 py-1 rounded-full">{cards.length}</span>
+      <div className="p-3 bg-white rounded-t-xl font-bold text-gray-700 flex justify-between items-center shadow-sm border-b border-gray-100">
+        <span className="text-lg">{title}</span>
+        <Badge value={cards.length} size="large" severity="secondary" className="bg-blue-100 text-blue-700 font-bold" />
       </div>
       
-      <div className="p-3 flex-1 overflow-y-auto min-h-[150px]">
+      <div className="p-3 flex-1 overflow-y-auto min-h-0">
         {cards.map(card => (
           <TaskCard key={card.id} card={card} onDelete={onDeleteCard} onRename={onRenameCard} />
         ))}
@@ -46,11 +48,11 @@ const BoardColumn = ({ title, status, cards, onAddCard, onMoveCard, onDeleteCard
 
       <div className="p-3 pt-0">
         {isAdding ? (
-          <form onSubmit={handleAddSubmit} className="mt-2">
-            <textarea
+          <form onSubmit={handleAddSubmit} className="mt-2 surface-card p-3 rounded-lg shadow-sm border border-gray-200 bg-white">
+            <InputTextarea
               autoFocus
-              className="w-full p-2 text-sm border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
-              rows="2"
+              className="w-full text-sm resize-none mb-2"
+              rows={2}
               placeholder="Enter a title for this card..."
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
@@ -61,33 +63,33 @@ const BoardColumn = ({ title, status, cards, onAddCard, onMoveCard, onDeleteCard
                 }
               }}
             />
-            <div className="flex items-center gap-2 mt-2">
-              <button
+            <div className="flex items-center gap-2">
+              <Button
                 type="submit"
-                className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
-              >
-                Add card
-              </button>
-              <button
+                label="Add card"
+                size="small"
+                className="p-button-sm p-button-primary"
+              />
+              <Button
                 type="button"
+                icon="pi pi-times"
+                rounded text severity="secondary"
+                aria-label="Cancel"
                 onClick={() => {
                   setIsAdding(false);
                   setNewTitle('');
                 }}
-                className="text-gray-500 hover:text-gray-700 p-1"
-              >
-                <X size={20} />
-              </button>
+              />
             </div>
           </form>
         ) : (
-          <button
+          <Button
+            label="Add a card"
+            icon="pi pi-plus"
+            text
+            className="w-full text-left text-gray-600 hover:text-gray-900 justify-content-start hover:bg-gray-200 transition-colors py-2"
             onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-800 hover:bg-gray-200 w-full p-2 rounded transition-colors text-sm font-medium"
-          >
-            <Plus size={16} />
-            Add a card
-          </button>
+          />
         )}
       </div>
     </div>

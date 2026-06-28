@@ -5,6 +5,7 @@ const { Server } = require('socket.io'); // Import socket.io Server
 require('dotenv').config();
 
 const cardRoutes = require('./routes/cardRoutes');
+const historyRoutes = require('./routes/historyRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -43,6 +44,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/cards', cardRoutes);
+app.use('/api/history', historyRoutes);
 
 // Base route for testing
 app.get('/', (req, res) => {
