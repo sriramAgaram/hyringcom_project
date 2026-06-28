@@ -23,12 +23,14 @@ const TaskCard = ({ card, onDelete, onRename }) => {
     setIsEditing(false);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = (e) => {
+    e.stopPropagation();
     confirmDialog({
       message: 'Are you sure you want to delete this task?',
       header: 'Confirm Deletion',
       icon: 'pi pi-exclamation-triangle',
-      acceptClassName: 'p-button-danger',
+      acceptClassName: 'p-button-danger p-button-sm ml-2',
+      rejectClassName: 'p-button-text p-button-sm',
       accept: () => onDelete(card.id)
     });
   };
@@ -82,7 +84,7 @@ const TaskCard = ({ card, onDelete, onRename }) => {
                 icon="pi pi-trash" 
                 rounded text severity="danger" 
                 aria-label="Delete" 
-                onClick={confirmDelete}
+                onClick={(e) => confirmDelete(e)}
                 className="w-1.5rem h-1.5rem p-0"
                 tooltip="Delete"
                 tooltipOptions={{ position: 'top' }}
